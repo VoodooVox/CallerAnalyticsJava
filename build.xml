@@ -1,0 +1,28 @@
+<project name="Caller Analytics Hadoop/Mapreduce" default="jar">
+   <property name="src" location="src/java/main" />
+   <property name="lib" location="lib" />
+   <property name="build" location="build" />
+
+   <property name="version" value="0.1" />
+   
+   <target name="init">
+      <tstamp />
+      
+      <mkdir dir="${build}" /> 
+   </target>
+   
+   <target name="compile" depends="init">
+      <javac debug="true" includes="**/*.java"
+         destdir="${build}" srcdir="${src}">
+      </javac>
+   </target>
+   
+   <target name="jar" depends="compile">
+      <jar basedir="${build}" includes="**/*.class"
+         destfile="calleranalytics-${version}.jar" />
+   </target>
+	
+	<target name="clean">
+	  <delete dir="${build}" />
+   </target>
+</project>
