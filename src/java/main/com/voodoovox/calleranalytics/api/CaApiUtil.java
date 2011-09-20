@@ -2,43 +2,63 @@ package com.voodoovox.calleranalytics.api;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Utility class to interact with Caller Analytics API.
+ * Utility class to interact with JSON-based API (i.e. Caller Analytics).
  */
-public class CaApiUtil {
-   private static final String URL_BASE = "http://ca-api.voodoovox.com/";
-   
+public class CaApiUtil 
+{
    /**
-    * Enumeration of valid API Methods
-    */
-   public static enum CaApiMethod { Create, Read, Update, Delete }
-   
-   /**
-    * Send API command to CallerAnalytics.
+    * Generic method for retrieving JSON documents via HTTP.
     * 
-    * @param apiKey        The API key for the application
-    * @param command       The API command name
-    * @param method        The method on the command
-    * @param jsonIn        The JSON object to pass into API command
-    * @return              The JSON object returned by API command
-    * @throws IOException Usually network error communicating with Caller Analytics
+    * @param urlStr  The URL string.
+    * @param data    A Map of the HTTP POST data (null to send none)
+    * @return the HTTP response in a JSONObject
+    * @throws IOException Usually network error communicating with remote server
     * @throws JSONException Error parsing JSON response
     */
-   public static JSONObject send(String apiKey, String command, CaApiMethod method, JSONObject jsonIn) throws IOException, JSONException
+   public static JSONObject sendGenericHttpJson(String urlStr, Map<String,String> data) throws IOException, JSONException
    {
-      String urlStr = URL_BASE + command + "." + method + ".do?json=" + URLEncoder.encode( jsonIn.toString(), "UTF-8" ) + "&key=" + apiKey;
-      
       URL url = new URL( urlStr );
       
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setDoInput( true );
+      
+      if ( data != null && data.size() > 0 )
+      {
+         StringBuilder outBuilder = new StringBuilder();
+         for ( Entry<String, String> entry: data.entrySet() ) 
+         {
+            if ( outBuilder.length() > 0 )
+            {
+               outBuilder.append( '&' );
+            }
+            
+            outBuilder.append( URLEncoder.encode( entry.getKey(), "UTF-8" ) );
+            outBuilder.append( '=' );
+            outBuilder.append( URLEncoder.encode( entry.getValue(), "UTF-8" ) );
+         }
+         
+         String outStr = outBuilder.toString();
+         
+         conn.setDoOutput( true );
+         conn.setRequestMethod( "POST" );
+         conn.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded" );
+         conn.setRequestProperty( "Content-Length", Integer.toString( outStr.length() ) );
+         
+         OutputStreamWriter out = new OutputStreamWriter( conn.getOutputStream() );
+         out.write( outStr );
+         out.flush();
+      }
       
       int responseCode = conn.getResponseCode();
       if ( responseCode == HttpURLConnection.HTTP_OK )
