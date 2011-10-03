@@ -6,12 +6,12 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 
 import com.voodoovox.calleranalytics.api.CaApiException;
-import com.voodoovox.calleranalytics.api.classes.Lookup;
+import com.voodoovox.calleranalytics.api.classes.Caller;
 
 /**
  * Example usage of Caller Analytics API
  */
-public class LookupReadExample 
+public class CallerReadExample 
 {
    public static void main(String[] args)
    {
@@ -49,17 +49,17 @@ public class LookupReadExample
       
       try
       {
-         Lookup lookup = Lookup.read( phoneNumber, null );
+         Caller caller = Caller.read( phoneNumber, null );
          
-         for ( Entry<String, String> dataEntry: lookup.getData().entrySet() )
+         for ( Entry<String, String> dataEntry: caller.getData().entrySet() )
          {
             System.out.println( dataEntry.getKey() + " : " +dataEntry.getValue() );
          }
          
-         System.out.println( "members (" + lookup.getMembers().size() + ") : " );
+         System.out.println( "members (" + caller.getMembers().size() + ") : " );
          
          int i = 1;
-         for ( Map<String, String> memberItem: lookup.getMembers() )
+         for ( Map<String, String> memberItem: caller.getMembers() )
          {
             System.out.println("   member " + i );
             
@@ -94,7 +94,7 @@ public class LookupReadExample
 
    private static void printUsage()
    {
-      System.out.println("Usage: com.voodoovox.calleranalytics.example.LookupReadExample [--key API_KEY] PHONE_NUMBER");
+      System.out.println("Usage: com.voodoovox.calleranalytics.example.CallerReadExample [--key API_KEY] PHONE_NUMBER");
       System.exit(1);
    }
 }

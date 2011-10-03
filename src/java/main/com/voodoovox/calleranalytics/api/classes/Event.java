@@ -200,6 +200,13 @@ public class Event extends CaApiBase
       return eventType;
    }
    
+   /**
+    * Create event.
+    * 
+    * @throws JSONException
+    * @throws IOException
+    * @throws CaApiException
+    */
    public void create() throws JSONException, IOException, CaApiException
    {
       SimpleDateFormat timeFormatter = new SimpleDateFormat( ISO_DATE_TIME_MS_FORMAT );

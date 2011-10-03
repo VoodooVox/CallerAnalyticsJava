@@ -1,6 +1,6 @@
-/* @(#)LookupResponse.java
+/* @(#)Caller.java
  * 
- * Created: Sep 19, 2011
+ * Created: Oct 3, 2011
  * 
  * Copyright(c) 2011 VoodooVox, Inc. All Rights Reserved.
  */
@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,27 +22,26 @@ import com.voodoovox.calleranalytics.api.CaApiBase;
 import com.voodoovox.calleranalytics.api.CaApiException;
 
 /**
- * Class to handle the Lookup API command. 
+ * Class to handle the Caller API command. 
  * 
- * @deprecated use {@link Caller}
  * @author Joseph Monti <jmonti@voodoovox.com>
  * @version 1.0
  */
-public class Lookup extends CaApiBase
+public class Caller extends CaApiBase
 {
-   private static final String COMMAND = "Lookup";
+   private static final String COMMAND = "Caller";
    
    /**
-    * Perform Lookup.Read on given phone number with optional request profile.
+    * Perform Caller.Read on given phone number with optional request profile.
     * 
     * @param phoneNumber         The phone number to lookup
     * @param requestProfile      The request profile to use (pass null to use default)
-    * @return Lookup object
+    * @return Caller object
     * @throws JSONException Error processing JSON data
     * @throws IOException Error communicating with API
     * @throws CaApiException on "nack" result
     */
-   public static Lookup read( String phoneNumber, String requestProfile ) throws JSONException, IOException, CaApiException
+   public static Caller read( String phoneNumber, String requestProfile ) throws JSONException, IOException, CaApiException
    {
       JSONObject jsonIn = new JSONObject();
       jsonIn.put( "phoneNumber", phoneNumber );
@@ -50,22 +50,37 @@ public class Lookup extends CaApiBase
          jsonIn.put( "requestProfile", requestProfile );
       }
       
-      return new Lookup( send( COMMAND, CaApiMethod.Read, jsonIn ) );
+      return new Caller( phoneNumber, send( COMMAND, CaApiMethod.Read, jsonIn ) );
    }
+   
+   private String phoneNumber;
    
    private Map<String, String> data;
    private List<Map<String, String>> members;
    
    /**
-    * Create new Lookup object from JSON response.
+    * Create new empty Caller object
+    * 
+    * @param phoneNumber The phoneNumber of the caller
+    */
+   public Caller( String phoneNumber )
+   {
+      this.phoneNumber = phoneNumber;
+      this.data = new HashMap<String, String>();
+      this.members = new ArrayList<Map<String,String>>();
+   }
+   
+   /**
+    * Create new Caller object from JSON response.
     * 
     * @param response The JSON "response" object
     * @throws JSONException when error parsing JSON "response" object
     */
-   public Lookup(JSONObject response) throws JSONException
+   public Caller( String phoneNumber, JSONObject response) throws JSONException
    {
-      data = new HashMap<String, String>();
-      members = new ArrayList<Map<String,String>>();
+      this.phoneNumber = phoneNumber;
+      this.data = new HashMap<String, String>();
+      this.members = new ArrayList<Map<String,String>>();
       
       Iterator<?> responseIt = response.keys();
       while ( responseIt.hasNext() )
@@ -100,6 +115,14 @@ public class Lookup extends CaApiBase
          }
       }
    }
+   
+   /**
+    * @return the phoneNumber
+    */
+   public String getPhoneNumber()
+   {
+      return phoneNumber;
+   }
 
    /**
     * @return the data (i.e. attributes of the caller)
@@ -108,6 +131,17 @@ public class Lookup extends CaApiBase
    {
       return data;
    }
+   
+   /**
+    * Add data to the caller.
+    * 
+    * @param name    name of the attribute to add
+    * @param value   value of the attribute to add
+    */
+   public void addData(String name, String value)
+   {
+      data.put( name, value );
+   }
 
    /**
     * @return the members
@@ -115,5 +149,34 @@ public class Lookup extends CaApiBase
    public List<Map<String, String>> getMembers()
    {
       return members;
+   }
+   
+   /**
+    * Update caller object for given phoneNumber with given data.
+    * <br><br>
+    * NOTE: currently omits members from update.
+    * 
+    * @throws JSONException
+    * @throws IOException
+    * @throws CaApiException
+    */
+   public void update() throws JSONException, IOException, CaApiException
+   {
+      JSONObject jsonIn = new JSONObject();
+      jsonIn.put( "phoneNumber", phoneNumber );
+      
+      JSONObject callerObj = new JSONObject();
+      
+      if ( data != null )
+      {
+         for ( Entry<String, String> entry: data.entrySet() )
+         {
+            callerObj.put( entry.getKey(), entry.getValue() );
+         }
+      }
+      
+      jsonIn.put( "caller", callerObj );
+      
+      send( COMMAND, CaApiMethod.Update, jsonIn );
    }
 }
