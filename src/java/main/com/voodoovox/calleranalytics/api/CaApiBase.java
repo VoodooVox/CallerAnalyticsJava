@@ -21,11 +21,15 @@ import org.json.JSONObject;
  * Uses Java system property "calleranalytics.apikey" as the
  * API Key for Caller Analytics, which must be set before using any Caller
  * Analytics commands. Call 
- * <br><br>&nbsp;&nbsp;&nbsp;
+ * <br><br>
+ * <code>CaApiBase.init( apiKey );</code>
+ * <br><br>
+ * Or 
+ * <br><br>
  * <code>System.setProperty( "calleranalytics.apikey", apiKey );</code>
  * <br><br>
- * Or include 
- * <br><br>&nbsp;&nbsp;&nbsp;
+ * Or include the line 
+ * <br><br>
  * <code>calleranalytics.apikey=YOUR_API_KEY</code>
  * <br><br>
  * in a Java properties file called "calleranalytics.properties" included in 
@@ -60,6 +64,16 @@ public class CaApiBase
             System.setProperties(p);
          }
       } catch ( Exception ex ) { }
+   }
+   
+   /**
+    * Initialize the API with the given API key. 
+    * 
+    * @param apiKey
+    */
+   public static void init( String apiKey )
+   {
+      System.setProperty( API_KEY_PROPERTY_NAME, apiKey );
    }
    
    /**
