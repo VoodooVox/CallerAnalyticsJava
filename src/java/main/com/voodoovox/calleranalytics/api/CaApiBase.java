@@ -45,7 +45,7 @@ public class CaApiBase
     */
    public static String API_KEY_PROPERTY_NAME = "calleranalytics.apikey";
    
-   private static final String URL_BASE = "https://api.calleranalytics.com/";
+   private static final String URL_BASE = "http://api.calleranalytics.com/";
    
    /**
     * Enumeration of valid API Methods
